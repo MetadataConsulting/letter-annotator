@@ -1,0 +1,9 @@
+dependencies {
+    compile project(':letter-annotator-api')
+
+    String luceneVersion = '5.3.1'
+    compile "org.apache.lucene:lucene-core:${luceneVersion}"
+    compile "org.apache.lucene:lucene-analyzers-common:${luceneVersion}"
+    compile "org.apache.lucene:lucene-queryparser:${luceneVersion}"
+    compile "org.apache.lucene:lucene-highlighter:${luceneVersion}"
+}
