@@ -14,6 +14,8 @@ public final class AnnotatedLetter {
     private final String letter;
     private final Highlighter highlighter;
 
+    private TextWithOccurrences textWithOccurrences;
+
     /**
      * Creates new annotated letter with no-op Highlighter.
      *
@@ -65,7 +67,17 @@ public final class AnnotatedLetter {
      * @return the letter highlighted by the highlighter supplied in the constructor
      */
     public String getHighlighted() {
-        return highlighter.highlight(letter, candidateTerms);
+        if (textWithOccurrences == null) {
+            textWithOccurrences = highlighter.highlight(letter, candidateTerms);
+        }
+        return textWithOccurrences.getText();
+    }
+
+    public Set<TermOccurrence> getOccurrences() {
+        if (textWithOccurrences == null) {
+            textWithOccurrences = highlighter.highlight(letter, candidateTerms);
+        }
+        return textWithOccurrences.getOccurrences();
     }
 
 }

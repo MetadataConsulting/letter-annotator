@@ -8,7 +8,7 @@ class HtmlHighlighterSpec extends Specification {
         expect:
         Highlighter.HTML.highlight("""
             Let's talk about the holy grail! It is so interesting!
-        """, CandidateTerm.create("Holy Grail").build()) == """
+        """, CandidateTerm.create("Holy Grail").build()).text == """
             Let's talk about the <span title="Holy Grail">holy grail</span>! It is so interesting!
         """
     }
@@ -17,7 +17,7 @@ class HtmlHighlighterSpec extends Specification {
         expect:
         Highlighter.HTML.highlight("""
             Let's talk about the holy grail! It is so interesting!
-        """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").build()) == """
+        """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").build()).text == """
             Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting!
         """
     }
@@ -26,9 +26,24 @@ class HtmlHighlighterSpec extends Specification {
         expect:
         Highlighter.HTML.highlight("""
             Let's talk about the holly grail! It is so interesting!
-        """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").pattern(/Holl?y Grail/).build()) == """
+        """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").pattern(/Holl?y Grail/).build()).text == """
             Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holly grail</a>! It is so interesting!
         """
+    }
+
+    def "test synonym replacement"() {
+        String original = """
+            Let's talk about the holy grail! It is so interesting! It's sometimes referred as Sang Real.
+        """
+
+        String expected = """
+            Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting! It's sometimes referred as <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">Sang Real</a>.
+        """
+
+        String highlighted = Highlighter.HTML.highlight(original, CandidateTerm.create("Holy Grail").synonym("Sang Real").url("http://www.imdb.com/title/tt0071853/").build()).text
+
+        expect:
+        highlighted == expected
     }
 
 }

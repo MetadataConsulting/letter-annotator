@@ -10,21 +10,24 @@ import java.util.Map;
  */
 public abstract class AbstractHighlighter implements Highlighter {
 
-    protected abstract String highlight(String letter, Map<String, CandidateTerm> candidateTerms);
+    protected abstract TextWithOccurrences highlight(String letter, Map<String, CandidateTerm> candidateTerms);
 
     @Override
-    public final String highlight(String letter, Collection<CandidateTerm> candidateTerms) {
+    public final TextWithOccurrences highlight(String letter, Collection<CandidateTerm> candidateTerms) {
         Map<String, CandidateTerm> candidateTermsMap = new HashMap<String, CandidateTerm>();
 
         for (CandidateTerm term : candidateTerms) {
             candidateTermsMap.put(term.getTerm(), term);
+            for (String synonym : term.getSynonyms()) {
+                candidateTermsMap.put(synonym, term);
+            }
         }
 
         return highlight(letter, candidateTermsMap);
     }
 
     @Override
-    public final String highlight(String letter, CandidateTerm... candidateTerms) {
+    public final TextWithOccurrences highlight(String letter, CandidateTerm... candidateTerms) {
         return highlight(letter, Arrays.asList(candidateTerms));
     }
 }

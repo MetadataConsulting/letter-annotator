@@ -1,5 +1,6 @@
 package org.modelcatalogue.letter.annotator;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 public abstract class ReplacementHighlighter extends AbstractHighlighter {
 
     @Override
-    protected final String highlight(String letter, Map<String, CandidateTerm> candidateTerms) {
+    protected final TextWithOccurrences highlight(String letter, Map<String, CandidateTerm> candidateTerms) {
         Map<String, CandidateTerm> normalizedMap = new HashMap<String, CandidateTerm>();
 
         for (Map.Entry<String, CandidateTerm> termEntry : candidateTerms.entrySet()) {
@@ -34,6 +35,7 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
         final Pattern pattern = Pattern.compile(patternString.substring(0, patternString.lastIndexOf("|")), HIGHLIGHTER_PATTERN_FLAGS);
         final Matcher matcher = pattern.matcher(letter);
         if (matcher.find()) {
+            TermOccurrence.Collector collector = TermOccurrence.collect();
             final StringBuffer sb = new StringBuffer(letter.length() + 16);
             do {
                 String originalMatch = matcher.group();
@@ -51,15 +53,16 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
                 if (matchedTerm == null) {
                     throw new IllegalStateException("No term found for '" + originalMatch + "'. Normalized terms map: " + normalizedMap);
                 }
+                collector.increment(matchedTerm);
                 matcher.appendReplacement(sb, Matcher.quoteReplacement(getReplacement(originalMatch, matchedTerm)));
             } while (matcher.find());
             matcher.appendTail(sb);
             appendTail(sb);
-            return sb.toString();
+            return new TextWithOccurrences(sb.toString(), collector.getOccurrences());
         } else {
             StringBuffer buffer = new StringBuffer(letter);
             appendTail(buffer);
-            return buffer.toString();
+            return new TextWithOccurrences(buffer.toString(), Collections.<TermOccurrence>emptySet());
         }
     }
 

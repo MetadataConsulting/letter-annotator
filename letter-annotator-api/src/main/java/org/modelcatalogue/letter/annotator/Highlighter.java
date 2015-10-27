@@ -11,8 +11,8 @@ public interface Highlighter {
 
     Highlighter NOOP = new AbstractHighlighter() {
         @Override
-        protected String highlight(String letter, Map<String, CandidateTerm> candidateTerms) {
-            return letter;
+        protected TextWithOccurrences highlight(String letter, Map<String, CandidateTerm> candidateTerms) {
+            return new TextWithOccurrences(letter, TermOccurrence.collect().getOccurrences());
         }
     };
 
@@ -20,7 +20,7 @@ public interface Highlighter {
 
     int HIGHLIGHTER_PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL;
 
-    String highlight(String letter, Collection<CandidateTerm> candidateTerms);
-    String highlight(String letter, CandidateTerm... candidateTerms);
+    TextWithOccurrences highlight(String letter, Collection<CandidateTerm> candidateTerms);
+    TextWithOccurrences highlight(String letter, CandidateTerm... candidateTerms);
 
 }

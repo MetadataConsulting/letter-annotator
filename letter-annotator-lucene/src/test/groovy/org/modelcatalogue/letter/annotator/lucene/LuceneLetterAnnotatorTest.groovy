@@ -35,6 +35,8 @@ class LuceneLetterAnnotatorTest extends Specification {
             This is some document about <a href="https://en.wikipedia.org/wiki/Somatic_(biology)" title="Somatic">somatic</a> problems. They can be caused by <span title="Somatic Mosaicism">somatic mosaicism</span>.
             Glad there were no <span title="Neoplasm">neoplasm</span> because initially thy were suspecting a <span title="Neoplasm">neoplasm</span>.
         """.stripIndent().trim()
+
+        letter.occurrences.find { it.term.term == 'Neoplasm'}.occurrence == 2
     }
 
     def "run java example"() {

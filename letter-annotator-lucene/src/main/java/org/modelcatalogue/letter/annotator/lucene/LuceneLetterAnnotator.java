@@ -63,6 +63,15 @@ public class LuceneLetterAnnotator extends AbstractLetterAnnotator {
         doc.add(new Field(TERM_FIELD, candidateTerm.getTerm(), createTermsFieldType()));
 
         termsIndexWriter.addDocument(doc);
+
+        for (String synonym : candidateTerm.getSynonyms()) {
+            candidateTermsMap.put(synonym, candidateTerm);
+
+            Document synonymDoc = new Document();
+            synonymDoc.add(new Field(TERM_FIELD, synonym, createTermsFieldType()));
+
+            termsIndexWriter.addDocument(synonymDoc);
+        }
     }
 
 

@@ -2,9 +2,7 @@ package org.modelcatalogue.letter.annotator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -30,13 +28,14 @@ public final class CandidateTerm {
         return new Builder(term);
     }
 
-    public final static class Builder {
+    public static final class Builder {
         private final String term;
         private URL url;
         private String title;
         private String description;
         private String pattern;
         private Map<String, Object> extensions = new LinkedHashMap<String, Object>();
+        private Set<String> synonyms = new TreeSet<String>();
 
         protected Builder(String term) {
             this.term = term;
@@ -93,6 +92,16 @@ public final class CandidateTerm {
         }
 
         /**
+         * Adds the term's synonym to the builder.
+         *
+         * @param synonym the synonym for the term
+         */
+        public Builder synonym(String synonym) {
+            this.synonyms.add(synonym);
+            return this;
+        }
+
+        /**
          * Adds the key, value pair of extension to the term definition. The extension meaning is derived from
          * the actual Highlighter or LetterAnnotator used.
          *
@@ -119,7 +128,7 @@ public final class CandidateTerm {
          * @return a new candidate term based of current values preset in this builder
          */
         public CandidateTerm build() {
-            return new CandidateTerm(term, url, title, description, pattern, Collections.unmodifiableMap(extensions));
+            return new CandidateTerm(term, url, title, description, pattern, Collections.unmodifiableMap(extensions), Collections.unmodifiableSet(synonyms));
         }
     }
 
@@ -129,13 +138,15 @@ public final class CandidateTerm {
     private final String description;
     private final Map<String, Object> extensions;
     private final Pattern pattern;
+    private final Set<String> synonyms;
 
-    protected CandidateTerm(String term, URL url, String title, String description, String pattern,  Map<String, Object> extensions) {
+    protected CandidateTerm(String term, URL url, String title, String description, String pattern,  Map<String, Object> extensions, Set<String> synonyms) {
         this.term = term;
         this.url = url;
         this.title = title;
         this.description = description;
         this.extensions = extensions;
+        this.synonyms = synonyms;
         if (pattern != null) {
             this.pattern = Pattern.compile(pattern, Highlighter.HIGHLIGHTER_PATTERN_FLAGS);
         } else {
@@ -185,6 +196,13 @@ public final class CandidateTerm {
         return extensions;
     }
 
+    /**
+     * @return set of all synonyms
+     */
+    public Set<String> getSynonyms() {
+        return synonyms;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -208,10 +226,13 @@ public final class CandidateTerm {
         if (description != null ? !description.equals(that.description) : that.description != null) {
             return false;
         }
-        if (extensions != null ? !extensions.equals(that.extensions) : that.extensions != null) {
+        if (!extensions.equals(that.extensions)) {
             return false;
         }
-        return !(pattern != null ? !pattern.equals(that.pattern) : that.pattern != null);
+        if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) {
+            return false;
+        }
+        return synonyms.equals(that.synonyms);
 
     }
 
@@ -221,8 +242,9 @@ public final class CandidateTerm {
         result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (extensions != null ? extensions.hashCode() : 0);
+        result = 31 * result + extensions.hashCode();
         result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + synonyms.hashCode();
         return result;
     }
 
@@ -235,6 +257,7 @@ public final class CandidateTerm {
                 ", description='" + description + '\'' +
                 ", extensions=" + extensions +
                 ", pattern=" + pattern +
+                ", synonyms=" + synonyms +
                 '}';
     }
 }
