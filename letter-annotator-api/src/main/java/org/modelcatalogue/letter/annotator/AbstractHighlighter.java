@@ -14,6 +14,10 @@ public abstract class AbstractHighlighter implements Highlighter {
 
     @Override
     public final TextWithOccurrences highlight(String letter, Collection<CandidateTerm> candidateTerms) {
+        if (candidateTerms.isEmpty()) {
+            return new TextWithOccurrences(letter, TermOccurrence.collect().getOccurrences());
+        }
+
         Map<String, CandidateTerm> candidateTermsMap = new HashMap<String, CandidateTerm>();
 
         for (CandidateTerm term : candidateTerms) {
