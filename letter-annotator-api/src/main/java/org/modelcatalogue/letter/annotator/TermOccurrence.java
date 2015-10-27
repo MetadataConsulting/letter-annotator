@@ -25,7 +25,7 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
         }
 
         public Set<TermOccurrence> getOccurrences() {
-            TreeSet<TermOccurrence> result = new TreeSet<TermOccurrence>(Collections.reverseOrder());
+            TreeSet<TermOccurrence> result = new TreeSet<TermOccurrence>();
             for (Builder builder : occurrences.values()) {
                 result.add(builder.build());
             }
@@ -91,7 +91,11 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
         if (o == null) {
             return 1;
         }
-        return ((Integer) occurrence).compareTo(o.occurrence);
+        int occurrenceComparison = - ((Integer) occurrence).compareTo(o.occurrence);
+        if (occurrenceComparison != 0) {
+            return occurrenceComparison;
+        }
+        return term.getTerm().compareTo(o.term.getTerm());
     }
 
     @Override

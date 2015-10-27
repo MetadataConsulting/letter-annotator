@@ -25,6 +25,7 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
         final StringBuilder patternBuilder = new StringBuilder();
         for (Map.Entry<String, CandidateTerm> term : normalizedMap.entrySet()) {
             if (term.getValue().getPattern() == null) {
+                patternBuilder.append("(?<=[\\W$])");
                 patternBuilder.append(Pattern.quote(term.getKey()).replaceAll("\\s+", " "));
                 patternBuilder.append("\\w*");
             } else {

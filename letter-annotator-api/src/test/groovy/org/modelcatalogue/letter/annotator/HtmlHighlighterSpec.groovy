@@ -22,6 +22,15 @@ class HtmlHighlighterSpec extends Specification {
         """
     }
 
+    def "test match only from the beginning of the word"() {
+        expect:
+        Highlighter.HTML.highlight("""
+            Let's talk about the melancholy grail! It is so interesting!
+        """, CandidateTerm.create("Holy Grail").build()).text == """
+            Let's talk about the melancholy grail! It is so interesting!
+        """
+    }
+
     def "test ref replacement"() {
         expect:
         Highlighter.HTML.highlight("""

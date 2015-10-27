@@ -15,7 +15,7 @@ public class HtmlHighlighter extends ReplacementHighlighter {
         StringBuilder builder = new StringBuilder();
 
         if (term.getUrl() != null) {
-            builder.append("<a");
+            builder.append("<a target=\"_blank\"");
             appendAttribute(builder, "href", term.getUrl().toExternalForm());
         } else {
             builder.append("<span");
