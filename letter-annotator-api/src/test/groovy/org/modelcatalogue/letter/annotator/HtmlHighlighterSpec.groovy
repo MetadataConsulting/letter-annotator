@@ -13,6 +13,15 @@ class HtmlHighlighterSpec extends Specification {
         """
     }
 
+    def "test match to the end of the word replacement"() {
+        expect:
+        Highlighter.HTML.highlight("""
+            Let's talk about the holy grails! It is so interesting!
+        """, CandidateTerm.create("Holy Grail").build()).text == """
+            Let's talk about the <span title="Holy Grail">holy grails</span>! It is so interesting!
+        """
+    }
+
     def "test ref replacement"() {
         expect:
         Highlighter.HTML.highlight("""

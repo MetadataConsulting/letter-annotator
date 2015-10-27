@@ -26,6 +26,7 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
         for (Map.Entry<String, CandidateTerm> term : normalizedMap.entrySet()) {
             if (term.getValue().getPattern() == null) {
                 patternBuilder.append(Pattern.quote(term.getKey()).replaceAll("\\s+", " "));
+                patternBuilder.append("\\w*");
             } else {
                 patternBuilder.append(term.getValue().getPattern().pattern());
             }
@@ -39,12 +40,18 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
             final StringBuffer sb = new StringBuffer(letter.length() + 16);
             do {
                 String originalMatch = matcher.group();
-                CandidateTerm matchedTerm = normalizedMap.get(normalize(originalMatch));
+                String normalizedMatch = normalize(originalMatch);
+                CandidateTerm matchedTerm = normalizedMap.get(normalizedMatch);
                 if (matchedTerm == null) {
-                    for (CandidateTerm term : candidateTerms.values()) {
-                        if (term.getPattern() != null) {
-                            if (term.getPattern().matcher(originalMatch).matches()) {
-                                matchedTerm = term;
+                    for (Map.Entry<String, CandidateTerm> entry : normalizedMap.entrySet()) {
+                        if (entry.getValue().getPattern() != null) {
+                            if (entry.getValue().getPattern().matcher(originalMatch).matches()) {
+                                matchedTerm = entry.getValue();
+                                break;
+                            }
+                        } else {
+                            if (normalizedMatch.startsWith(entry.getKey())) {
+                                matchedTerm = entry.getValue();
                                 break;
                             }
                         }
