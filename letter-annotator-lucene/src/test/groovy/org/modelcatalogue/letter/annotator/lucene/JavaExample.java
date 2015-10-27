@@ -13,7 +13,7 @@ public class JavaExample {
         String letterText = "This is some document about somatic problems. They can be caused by somatic mosaicism. " +
                 "Glad there were no neoplasm because initially thy were suspecting a neoplasm";
 
-        String expected = "This is some document about <a href=\"https://en.wikipedia.org/wiki/Somatic\" " +
+        String expected = "This is some document about <a target=\"_blank\" href=\"https://en.wikipedia.org/wiki/Somatic\" " +
                 "title=\"Somatic\">somatic</a> problems. They can be caused by <span title=\"Somatic Mosaicism\" " +
                 "class=\"visited\">somatic mosaicism</span>. Glad there were no <span title=\"Neoplasm\">" +
                 "neoplasm</span> because initially thy were suspecting a <span title=\"Neoplasm\">neoplasm</span>";

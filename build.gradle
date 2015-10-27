@@ -99,6 +99,8 @@ subprojects {
         archives sourcesJar, javadocJar
     }
 
+    bintrayUpload.dependsOn test
+
 }
 
 // asciidoctor publishing

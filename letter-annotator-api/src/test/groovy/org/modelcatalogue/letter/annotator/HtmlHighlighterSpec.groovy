@@ -36,7 +36,7 @@ class HtmlHighlighterSpec extends Specification {
         Highlighter.HTML.highlight("""
             Let's talk about the holy grail! It is so interesting!
         """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").build()).text == """
-            Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting!
+            Let's talk about the <a target="_blank" href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting!
         """
     }
 
@@ -45,7 +45,7 @@ class HtmlHighlighterSpec extends Specification {
         Highlighter.HTML.highlight("""
             Let's talk about the holly grail! It is so interesting!
         """, CandidateTerm.create("Holy Grail").url("http://www.imdb.com/title/tt0071853/").pattern(/Holl?y Grail/).build()).text == """
-            Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holly grail</a>! It is so interesting!
+            Let's talk about the <a target="_blank" href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holly grail</a>! It is so interesting!
         """
     }
 
@@ -55,7 +55,7 @@ class HtmlHighlighterSpec extends Specification {
         """
 
         String expected = """
-            Let's talk about the <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting! It's sometimes referred as <a href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">Sang Real</a>.
+            Let's talk about the <a target="_blank" href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">holy grail</a>! It is so interesting! It's sometimes referred as <a target="_blank" href="http://www.imdb.com/title/tt0071853/" title="Holy Grail">Sang Real</a>.
         """
 
         String highlighted = Highlighter.HTML.highlight(original, CandidateTerm.create("Holy Grail").synonym("Sang Real").url("http://www.imdb.com/title/tt0071853/").build()).text

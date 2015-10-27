@@ -32,7 +32,7 @@ class LuceneLetterAnnotatorTest extends Specification {
         letter
 
         letter.highlighted == """
-            This is some document about <a href="https://en.wikipedia.org/wiki/Somatic_(biology)" title="Somatic">somatic</a> problems. They can be caused by <span title="Somatic Mosaicism">somatic mosaicism</span>.
+            This is some document about <a target="_blank" href="https://en.wikipedia.org/wiki/Somatic_(biology)" title="Somatic">somatic</a> problems. They can be caused by <span title="Somatic Mosaicism">somatic mosaicism</span>.
             Glad there were no <span title="Neoplasm">neoplasm</span> because initially thy were suspecting a <span title="Neoplasm">neoplasm</span>.
         """.stripIndent().trim()
 
