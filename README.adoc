@@ -1,5 +1,7 @@
 = Letter Annotator
 
+Get the lastest version from JCenter or Maven Central `org.modelcatalogue:letter-annotator-lucene:{version}`
+
 Annotates text with terms provided.
 
 [source,java]
@@ -27,6 +29,6 @@ if (!letter.getText().equals(expected)) {
 }
 System.out.println("Expected output matched!");
 System.out.println("========================");
-System.out.println(letter.getHighlighted());
+System.out.println(letter.getText());
 System.out.println("========================");
 ----
