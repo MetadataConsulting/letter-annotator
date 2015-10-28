@@ -82,7 +82,9 @@ public final class CandidateTerm {
          *
          * It mustn't contain any capturing groups!
          *
-         * The flags are predefined in <code>Highlighter#HIGHLIGHTER_PATTERN_FLAGS</code> and cannot be changed.
+         * The flags are predefined in <code>PatternMatcher#PATTERN_FLAGS</code> and cannot be changed.
+         *
+         * WARNING: Other TermMatcher than PatternMatcher may ignore this value.
          *
          * @param pattern the regular expression for the builder
          */
@@ -148,7 +150,7 @@ public final class CandidateTerm {
         this.extensions = extensions;
         this.synonyms = synonyms;
         if (pattern != null) {
-            this.pattern = Pattern.compile(pattern, Highlighter.HIGHLIGHTER_PATTERN_FLAGS);
+            this.pattern = Pattern.compile(pattern, PatternMatcher.PATTERN_FLAGS);
         } else {
             this.pattern = null;
         }
@@ -253,11 +255,6 @@ public final class CandidateTerm {
         return "CandidateTerm{" +
                 "term='" + term + '\'' +
                 ", url=" + url +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", extensions=" + extensions +
-                ", pattern=" + pattern +
-                ", synonyms=" + synonyms +
                 '}';
     }
 }

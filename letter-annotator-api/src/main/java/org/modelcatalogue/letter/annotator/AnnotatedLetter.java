@@ -1,83 +1,76 @@
 package org.modelcatalogue.letter.annotator;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Annotated letter contains the original letter and the set of candidate terms which may or may not occur in
- * the letter. To get the letter annotated with the supplied highlighter use #getHighlighted() method.
+ * Annotated letter holds the annotated text and the term occurences
  */
 public final class AnnotatedLetter {
 
-    private final Collection<CandidateTerm> candidateTerms;
-    private final String letter;
-    private final Highlighter highlighter;
-
-    private TextWithOccurrences textWithOccurrences;
+    private final String text;
+    private final Set<TermOccurrence> occurrences;
 
     /**
-     * Creates new annotated letter with no-op Highlighter.
-     *
-     * @param letter the letter to be annotated
-     * @param candidateTerms the candidate terms
+     * Creates new annotated letter with given annotated text and the term occurences
+     * @param text annotated letter
+     * @param occurrences term occurences
      */
-    public AnnotatedLetter(String letter, Collection<CandidateTerm> candidateTerms) {
-        this(letter, candidateTerms, Highlighter.NOOP);
-    }
-
-    /**
-     * Creates new annotated letter with given Highlighter.
-     *
-     * @param letter the letter to be annotated
-     * @param candidateTerms the candidate terms
-     * @param highlighter the highlighter used by #getHighlighted() method
-     */
-    public AnnotatedLetter(String letter, Collection<CandidateTerm> candidateTerms, Highlighter highlighter) {
-        if (candidateTerms == null) {
-            throw new IllegalArgumentException("Candidate terms cannot be null");
+    public AnnotatedLetter(String text, Set<TermOccurrence> occurrences) {
+        if (text == null) {
+            throw new IllegalArgumentException("Letter cannot be null!");
         }
-        if (letter == null) {
-            throw new IllegalArgumentException("Letter cannot be null");
+        if (occurrences == null) {
+            throw new IllegalArgumentException("Statistics cannot be null!");
         }
-        if (highlighter == null) {
-            this.highlighter = Highlighter.NOOP;
-        } else {
-            this.highlighter = highlighter;
-        }
-        this.candidateTerms = Collections.unmodifiableCollection(candidateTerms);
-        this.letter = letter;
+        this.text = text;
+        this.occurrences = Collections.unmodifiableSet(occurrences);
     }
 
     /**
-     * @return all candidate terms for this letter
+     * @return the annotated text
      */
-    public Collection<CandidateTerm> getCandidateTerms() {
-        return candidateTerms;
+    public String getText() {
+        return text;
     }
 
     /**
-     * @return original letter
+     * @return the term occurences
      */
-    public String getLetter() {
-        return letter;
-    }
-
-    /**
-     * @return the letter highlighted by the highlighter supplied in the constructor
-     */
-    public String getHighlighted() {
-        if (textWithOccurrences == null) {
-            textWithOccurrences = highlighter.highlight(letter, candidateTerms);
-        }
-        return textWithOccurrences.getText();
-    }
-
     public Set<TermOccurrence> getOccurrences() {
-        if (textWithOccurrences == null) {
-            textWithOccurrences = highlighter.highlight(letter, candidateTerms);
-        }
-        return textWithOccurrences.getOccurrences();
+        return occurrences;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AnnotatedLetter that = (AnnotatedLetter) o;
+
+        if (!text.equals(that.text)) {
+            return false;
+        }
+        return occurrences.equals(that.occurrences);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = text.hashCode();
+        result = 31 * result + occurrences.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "AnnotatedLetter{" +
+                "text='" + text + '\'' +
+                ", occurrences=" + occurrences +
+                '}';
+    }
 }

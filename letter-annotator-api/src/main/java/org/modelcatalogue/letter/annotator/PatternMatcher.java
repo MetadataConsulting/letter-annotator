@@ -1,21 +1,21 @@
 package org.modelcatalogue.letter.annotator;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The base implementation for highlighters which replaces the string matched by either the term of the term candidate
- * or by its pattern by the string with the more information from the candidate term encoded.
+ * The simplest implementation of matcher possible using the regular expressions.
  *
- * @see #getReplacement(String, CandidateTerm)
+ * The matcher either creates the patterns from the terms and their synonyms or uses the pattern
+ * supplied by the term as the pattern extension.
  */
-public abstract class ReplacementHighlighter extends AbstractHighlighter {
+public class PatternMatcher extends AbstractTermMatcher {
 
-    @Override
-    protected final TextWithOccurrences highlight(String letter, Map<String, CandidateTerm> candidateTerms) {
+    public static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL;
+
+    protected final AnnotatedLetter annotate(Highlighter highlighter, Scorer scorer, String letter, Map<String, CandidateTerm> candidateTerms) {
         Map<String, CandidateTerm> normalizedMap = new HashMap<String, CandidateTerm>();
 
         for (Map.Entry<String, CandidateTerm> termEntry : candidateTerms.entrySet()) {
@@ -34,11 +34,12 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
             patternBuilder.append("|");
         }
         final String patternString = patternBuilder.toString();
-        final Pattern pattern = Pattern.compile(patternString.substring(0, patternString.lastIndexOf("|")), HIGHLIGHTER_PATTERN_FLAGS);
+        final Pattern pattern = Pattern.compile(patternString.substring(0, patternString.lastIndexOf("|")), PATTERN_FLAGS);
         final Matcher matcher = pattern.matcher(letter);
         if (matcher.find()) {
             TermOccurrence.Collector collector = TermOccurrence.collect();
             final StringBuffer sb = new StringBuffer(letter.length() + 16);
+            sb.append(highlighter.getHead());
             do {
                 String originalMatch = matcher.group();
                 String normalizedMatch = normalize(originalMatch);
@@ -61,17 +62,14 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
                 if (matchedTerm == null) {
                     throw new IllegalStateException("No term found for '" + originalMatch + "'. Normalized terms map: " + normalizedMap);
                 }
-                collector.increment(matchedTerm);
-                matcher.appendReplacement(sb, Matcher.quoteReplacement(getReplacement(originalMatch, matchedTerm)));
+                scorer.score(collector, letter, originalMatch, matcher.start(), matcher.end(), matchedTerm);
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(highlighter.getReplacement(originalMatch, matchedTerm)));
             } while (matcher.find());
             matcher.appendTail(sb);
-            appendTail(sb);
-            return new TextWithOccurrences(sb.toString(), collector.getOccurrences());
-        } else {
-            StringBuffer buffer = new StringBuffer(letter);
-            appendTail(buffer);
-            return new TextWithOccurrences(buffer.toString(), Collections.<TermOccurrence>emptySet());
+            sb.append(highlighter.getTail());
+            return new AnnotatedLetter(sb.toString(), collector.getOccurrences());
         }
+        return nothingToHighlight(highlighter, letter);
     }
 
     /**
@@ -82,20 +80,4 @@ public abstract class ReplacementHighlighter extends AbstractHighlighter {
     protected String normalize(String string) {
         return string.toLowerCase().replaceAll("\\s+", " ");
     }
-
-    /**
-     * Appends the text to the end of the buffer.
-     * @param buffer the buffer to be appended
-     */
-    protected void appendTail(StringBuffer buffer) {
-        // do nothing by default
-    }
-
-    /**
-     * Returns the replacement of matched string usually with the information from the term encoded.
-     * @param matchedString the matched string
-     * @param term ther term matched to given matched string
-     * @return the replacement of matched string usually with the information from the term encoded
-     */
-    protected abstract String getReplacement(String matchedString, CandidateTerm term);
 }

@@ -47,7 +47,7 @@ public class LuceneLetterAnnotator extends AbstractLetterAnnotator {
     }
 
     @Override
-    public void addCandidate(CandidateTerm candidateTerm) throws IOException {
+    public void addCandidate(CandidateTerm candidateTerm) {
         if (candidateTermsMap.containsKey(candidateTerm.getTerm())) {
             // first candidate term wins
             return;
@@ -55,28 +55,32 @@ public class LuceneLetterAnnotator extends AbstractLetterAnnotator {
 
         candidateTermsMap.put(candidateTerm.getTerm(), candidateTerm);
 
-        if (termsIndexWriter == null) {
-            termsIndexWriter = createTermsIndexWriter();
-        }
+        try {
+            if (termsIndexWriter == null) {
+                termsIndexWriter = createTermsIndexWriter();
+            }
 
-        Document doc = new Document();
-        doc.add(new Field(TERM_FIELD, candidateTerm.getTerm(), createTermsFieldType()));
+            Document doc = new Document();
+            doc.add(new Field(TERM_FIELD, candidateTerm.getTerm(), createTermsFieldType()));
 
-        termsIndexWriter.addDocument(doc);
+            termsIndexWriter.addDocument(doc);
 
-        for (String synonym : candidateTerm.getSynonyms()) {
-            candidateTermsMap.put(synonym, candidateTerm);
+            for (String synonym : candidateTerm.getSynonyms()) {
+                candidateTermsMap.put(synonym, candidateTerm);
 
-            Document synonymDoc = new Document();
-            synonymDoc.add(new Field(TERM_FIELD, synonym, createTermsFieldType()));
+                Document synonymDoc = new Document();
+                synonymDoc.add(new Field(TERM_FIELD, synonym, createTermsFieldType()));
 
-            termsIndexWriter.addDocument(synonymDoc);
+                termsIndexWriter.addDocument(synonymDoc);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Exception adding candidate", e);
         }
     }
 
 
     @Override
-    public AnnotatedLetter annotate(CharSequence letter, Highlighter highlighter) throws IOException {
+    protected Collection<CandidateTerm> getCandidateTerms(CharSequence letter) {
         if (letter == null) {
             throw new IllegalArgumentException("Letter cannot be nulll");
         }
@@ -85,43 +89,47 @@ public class LuceneLetterAnnotator extends AbstractLetterAnnotator {
             throw new IllegalArgumentException("Letter cannot be empty");
         }
 
-        closeAndRemoveIndexWriterIfNeeded();
+        try {
+            closeAndRemoveIndexWriterIfNeeded();
 
-        Directory letterDirectory = createLetterDirectory();
+            Directory letterDirectory = createLetterDirectory();
 
-        indexLetter(letter, letterDirectory);
+            indexLetter(letter, letterDirectory);
 
-        LeafReader leafTermsReader = SlowCompositeReaderWrapper.wrap(DirectoryReader.open(termsDirectory));
-        Terms termsTerms = leafTermsReader.terms(TERM_FIELD);
-        TermsEnum termsTermsEnum = termsTerms.iterator();
+            LeafReader leafTermsReader = SlowCompositeReaderWrapper.wrap(DirectoryReader.open(termsDirectory));
+            Terms termsTerms = leafTermsReader.terms(TERM_FIELD);
+            TermsEnum termsTermsEnum = termsTerms.iterator();
 
 
-        LeafReader leafBodyReader = SlowCompositeReaderWrapper.wrap(DirectoryReader.open(letterDirectory));
-        Terms bodyTerms = leafBodyReader.terms(BODY_FIELD);
-        TermsEnum bodyTermsEnum = bodyTerms.iterator();
+            LeafReader leafBodyReader = SlowCompositeReaderWrapper.wrap(DirectoryReader.open(letterDirectory));
+            Terms bodyTerms = leafBodyReader.terms(BODY_FIELD);
+            TermsEnum bodyTermsEnum = bodyTerms.iterator();
 
-        Set<Integer> candidateDocIds = new HashSet<Integer>();
+            Set<Integer> candidateDocIds = new HashSet<Integer>();
 
-        BytesRef bodyTermRef;
-        while ((bodyTermRef = bodyTermsEnum.next()) != null) {
-            if (termsTermsEnum.seekExact(bodyTermRef)) {
-                PostingsEnum postings = termsTermsEnum.postings(null);
-                Integer docid;
-                while((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-                    candidateDocIds.add(docid);
+            BytesRef bodyTermRef;
+            while ((bodyTermRef = bodyTermsEnum.next()) != null) {
+                if (termsTermsEnum.seekExact(bodyTermRef)) {
+                    PostingsEnum postings = termsTermsEnum.postings(null);
+                    Integer docid;
+                    while((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                        candidateDocIds.add(docid);
+                    }
+
                 }
-
             }
+
+            Set<CandidateTerm> candidateTerms = new HashSet<CandidateTerm>();
+
+            for (Integer docid : candidateDocIds) {
+                String termString = leafTermsReader.document(docid).get(TERM_FIELD);
+                candidateTerms.add(candidateTermsMap.get(termString));
+            }
+
+            return candidateTerms;
+        } catch (IOException e) {
+            throw new RuntimeException("Exception finding candidate words", e);
         }
-
-        Set<CandidateTerm> candidateTerms = new HashSet<CandidateTerm>();
-
-        for (Integer docid : candidateDocIds) {
-            String termString = leafTermsReader.document(docid).get(TERM_FIELD);
-            candidateTerms.add(candidateTermsMap.get(termString));
-        }
-
-        return new AnnotatedLetter(letter.toString(), candidateTerms, highlighter);
     }
 
     protected FieldType createLetterFieldType() {

@@ -1,37 +1,37 @@
 package org.modelcatalogue.letter.annotator;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Abstract implementation of Highlighter which handles some syntactic sugar methods.
+ * Abstract implementation of Highlighter which allows to set custom head and tail.
  */
 public abstract class AbstractHighlighter implements Highlighter {
 
-    protected abstract TextWithOccurrences highlight(String letter, Map<String, CandidateTerm> candidateTerms);
+    private String head = "";
+    private String tail = "";
 
-    @Override
-    public final TextWithOccurrences highlight(String letter, Collection<CandidateTerm> candidateTerms) {
-        if (candidateTerms.isEmpty()) {
-            return new TextWithOccurrences(letter, TermOccurrence.collect().getOccurrences());
-        }
 
-        Map<String, CandidateTerm> candidateTermsMap = new HashMap<String, CandidateTerm>();
+    /**
+     * Sets the custom head for the highlighter which should be prepended to the highlighted text.
+     * @param head the custom head for the highlighter which should be prepended to the highlighted text
+     */
+    public void setHead(String head) {
+        this.head = head;
+    }
 
-        for (CandidateTerm term : candidateTerms) {
-            candidateTermsMap.put(term.getTerm(), term);
-            for (String synonym : term.getSynonyms()) {
-                candidateTermsMap.put(synonym, term);
-            }
-        }
-
-        return highlight(letter, candidateTermsMap);
+    /**
+     * Sets the custom tail for the highlighter which should be appended to the highlighted text.
+     * @param tail the custom tail for the highlighter which should be appended to the highlighted text
+     */
+    public void setTail(String tail) {
+        this.tail = tail;
     }
 
     @Override
-    public final TextWithOccurrences highlight(String letter, CandidateTerm... candidateTerms) {
-        return highlight(letter, Arrays.asList(candidateTerms));
+    public String getTail() {
+        return tail;
+    }
+
+    @Override
+    public String getHead() {
+        return head;
     }
 }

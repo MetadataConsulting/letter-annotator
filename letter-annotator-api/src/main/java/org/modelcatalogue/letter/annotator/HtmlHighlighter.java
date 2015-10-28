@@ -8,10 +8,10 @@ import java.util.Map;
  *
  * @see Highlighter#HTML
  */
-public class HtmlHighlighter extends ReplacementHighlighter {
+public class HtmlHighlighter extends AbstractHighlighter {
 
     @Override
-    protected String getReplacement(String matchedString, CandidateTerm term) {
+    public String getReplacement(String matchedString, CandidateTerm term) {
         StringBuilder builder = new StringBuilder();
 
         if (term.getUrl() != null) {
@@ -51,6 +51,7 @@ public class HtmlHighlighter extends ReplacementHighlighter {
         for (Object val : pickFirst) {
             if (val != null) {
                 value = val;
+                break;
             }
         }
 

@@ -2,7 +2,6 @@ package org.modelcatalogue.letter.annotator.lucene
 
 import org.modelcatalogue.letter.annotator.AnnotatedLetter
 import org.modelcatalogue.letter.annotator.CandidateTerm
-import org.modelcatalogue.letter.annotator.Highlighter
 import org.modelcatalogue.letter.annotator.LetterAnnotator
 import spock.lang.Specification
 
@@ -25,18 +24,18 @@ class LuceneLetterAnnotatorTest extends Specification {
         annotator.addCandidate(CandidateTerm.create('Somatic Mutation'))
         annotator.addCandidate(CandidateTerm.create('Somatic Mosaicism'))
 
-        AnnotatedLetter letter = annotator.annotate(letterText, Highlighter.HTML)
+        AnnotatedLetter letter = annotator.annotate(letterText)
 
         then:
         noExceptionThrown()
         letter
 
-        letter.highlighted == """
+        letter.text == """
             This is some document about <a target="_blank" href="https://en.wikipedia.org/wiki/Somatic_(biology)" title="Somatic">somatic</a> problems. They can be caused by <span title="Somatic Mosaicism">somatic mosaicism</span>.
             Glad there were no <span title="Neoplasm">neoplasm</span> because initially thy were suspecting a <span title="Neoplasm">neoplasm</span>.
         """.stripIndent().trim()
 
-        letter.occurrences.find { it.term.term == 'Neoplasm'}.occurrence == 2
+        letter.occurrences.find { it.term.term == 'Neoplasm'}.positiveOccurrence == 2
     }
 
     def "run java example"() {

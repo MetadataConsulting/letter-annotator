@@ -2,7 +2,6 @@ package org.modelcatalogue.letter.annotator.lucene;
 
 import org.modelcatalogue.letter.annotator.AnnotatedLetter;
 import org.modelcatalogue.letter.annotator.CandidateTerm;
-import org.modelcatalogue.letter.annotator.Highlighter;
 import org.modelcatalogue.letter.annotator.LetterAnnotator;
 
 import java.io.IOException;
@@ -26,14 +25,14 @@ public class JavaExample {
         annotator.addCandidate(CandidateTerm.create("Somatic Mutation"));
         annotator.addCandidate(CandidateTerm.create("Somatic Mosaicism").extensions("class", "visited"));
 
-        AnnotatedLetter letter = annotator.annotate(letterText, Highlighter.HTML);
+        AnnotatedLetter letter = annotator.annotate(letterText);
 
-        if (!letter.getHighlighted().equals(expected)) {
+        if (!letter.getText().equals(expected)) {
             throw new RuntimeException("Text does not match!");
         }
         System.out.println("Expected output matched!");
         System.out.println("========================");
-        System.out.println(letter.getHighlighted());
+        System.out.println(letter.getText());
         System.out.println("========================");
     }
     

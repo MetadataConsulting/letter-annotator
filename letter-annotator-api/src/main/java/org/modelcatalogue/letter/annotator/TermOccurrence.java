@@ -19,7 +19,7 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
                 occurrences.put(term, builder);
             }
 
-            builder.increment();
+            builder.positive();
 
             return this;
         }
@@ -40,50 +40,57 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
 
     protected static final class Builder {
         private final CandidateTerm term;
-        private int occurrence;
+        private int positiveOccurrence;
+        private int negativeOccurrence;
 
         protected Builder(CandidateTerm term) {
             this.term = term;
         }
 
-        Builder occurrence(int occurrence) {
-            if (occurrence < 0) {
-                throw new IllegalArgumentException("Occurrence cannot negative!");
-            }
-            this.occurrence = occurrence;
+        Builder positive() {
+            this.positiveOccurrence++;
             return this;
         }
 
-        Builder increment() {
-            this.occurrence++;
+        Builder negative() {
+            this.negativeOccurrence++;
             return this;
         }
 
         TermOccurrence build() {
-            return new TermOccurrence(term, occurrence);
+            return new TermOccurrence(term, positiveOccurrence, negativeOccurrence);
         }
     }
 
     final CandidateTerm term;
-    final int occurrence;
+    final int positiveOccurrence;
+    final int negativeOccurrence;
 
-    protected TermOccurrence(CandidateTerm term, int occurrence) {
+    protected TermOccurrence(CandidateTerm term, int positiveOccurrence, int negativeOccurrence) {
         if (term == null) {
             throw new IllegalArgumentException("Term cannot be null");
         }
-        if (occurrence < 0) {
-            throw new IllegalArgumentException("Occurrence cannot negative!");
+        if (positiveOccurrence < 0) {
+            throw new IllegalArgumentException("Positive occurrence cannot negative!");
+        }
+        if (negativeOccurrence < 0) {
+            throw new IllegalArgumentException("negative occurrence cannot negative!");
         }
         this.term = term;
-        this.occurrence = occurrence;
+        this.positiveOccurrence = positiveOccurrence;
+        this.negativeOccurrence = negativeOccurrence;
     }
 
     public CandidateTerm getTerm() {
         return term;
     }
 
-    public int getOccurrence() {
-        return occurrence;
+    public int getPositiveOccurrence() {
+        return positiveOccurrence;
+    }
+
+    public int getNegativeOccurrence() {
+        return negativeOccurrence;
     }
 
     @Override
@@ -91,9 +98,13 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
         if (o == null) {
             return 1;
         }
-        int occurrenceComparison = - ((Integer) occurrence).compareTo(o.occurrence);
-        if (occurrenceComparison != 0) {
-            return occurrenceComparison;
+        int positiveOccurrenceComparison = - ((Integer) positiveOccurrence).compareTo(o.positiveOccurrence);
+        if (positiveOccurrenceComparison != 0) {
+            return positiveOccurrenceComparison;
+        }
+        int negativeOccurrenceComparison = ((Integer) negativeOccurrence).compareTo(o.negativeOccurrence);
+        if (negativeOccurrenceComparison != 0) {
+            return negativeOccurrenceComparison;
         }
         return term.getTerm().compareTo(o.term.getTerm());
     }
@@ -109,7 +120,10 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
 
         TermOccurrence that = (TermOccurrence) o;
 
-        if (occurrence != that.occurrence) {
+        if (positiveOccurrence != that.positiveOccurrence) {
+            return false;
+        }
+        if (negativeOccurrence != that.negativeOccurrence) {
             return false;
         }
         return term.equals(that.term);
@@ -119,7 +133,8 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
     @Override
     public int hashCode() {
         int result = term.hashCode();
-        result = 31 * result + occurrence;
+        result = 31 * result + positiveOccurrence;
+        result = 31 * result + negativeOccurrence;
         return result;
     }
 
@@ -127,7 +142,8 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
     public String toString() {
         return "TermOccurrence{" +
                 "term=" + term +
-                ", occurrence=" + occurrence +
+                ", positiveOccurrence=" + positiveOccurrence +
+                ", negativeOccurrence=" + negativeOccurrence +
                 '}';
     }
 }

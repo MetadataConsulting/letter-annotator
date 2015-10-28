@@ -22,7 +22,7 @@ annotator.addCandidate(CandidateTerm.create("Somatic Mosaicism").extensions("cla
 
 AnnotatedLetter letter = annotator.annotate(letterText, Highlighter.HTML);
 
-if (!letter.getHighlighted().equals(expected)) {
+if (!letter.getText().equals(expected)) {
     throw new RuntimeException("Text does not match!");
 }
 System.out.println("Expected output matched!");
