@@ -11,17 +11,24 @@ public final class TermOccurrence implements Comparable<TermOccurrence> {
     public static final class Collector {
         private final Map<CandidateTerm, Builder> occurrences = new HashMap<CandidateTerm, Builder>();
 
-        public Collector increment(CandidateTerm term) {
+        public Collector positive(CandidateTerm term) {
+            getBuilder(term).positive();
+            return this;
+        }
+
+        public Collector negative(CandidateTerm term) {
+            getBuilder(term).negative();
+            return this;
+        }
+
+        private Builder getBuilder(CandidateTerm term) {
             Builder builder = occurrences.get(term);
 
             if (builder == null) {
                 builder = create(term);
                 occurrences.put(term, builder);
             }
-
-            builder.positive();
-
-            return this;
+            return builder;
         }
 
         public Set<TermOccurrence> getOccurrences() {
